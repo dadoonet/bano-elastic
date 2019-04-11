@@ -1,0 +1,82 @@
+PUT _template/bano
+{
+  "index_patterns": "bano*",
+  "settings": {
+    "index.number_of_shards": 1,
+    "index.number_of_replicas": 0,
+    "index.analysis": {
+      "analyzer": {
+        "bano_city_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "asciifolding"
+          ]
+        },
+        "bano_street_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "elision",
+            "lowercase",
+            "asciifolding",
+            "bano_synonym"
+          ]
+        }
+      },
+      "filter": {
+        "bano_synonym": {
+          "type": "synonym",
+          "synonyms": [
+            "bd => boulevard",
+            "av => avenue",
+            "r => rue",
+            "rte => route"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "address": {
+        "properties": {
+          "city": {
+            "type": "text",
+            "analyzer": "bano_city_analyzer",
+            "fields": {
+              "keyword": {
+                "type": "keyword"
+              }
+            }
+          },
+          "number": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword"
+              }
+            }
+          },
+          "street_name": {
+            "type": "text",
+            "analyzer": "bano_street_analyzer"
+          },
+          "zipcode": {
+            "type": "keyword"
+          }
+        }
+      },
+      "id": {
+        "type": "keyword"
+      },
+      "source": {
+        "type": "keyword"
+      },
+      "location": {
+        "type": "geo_point"
+      }
+    }
+  }
+}

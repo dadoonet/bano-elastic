@@ -1,0 +1,269 @@
+# Step 1-1: Add CSV
+csv {
+  separator => ","
+  columns => [
+    "id","number","street_name","zipcode","city","source","latitude","longitude"
+  ]
+  remove_field => [ "message", "@version", "@timestamp", "host", "headers" ]
+}
+
+# Step 1-2: Add Mutate lat/lon to float
+mutate {
+  convert => { "longitude" => "float" }
+  convert => { "latitude" => "float" }
+}
+
+# Step 1-3: Add Mutate - move location under location field and address under address field.
+mutate {
+  rename => {
+    "longitude" => "[location][lon]"
+    "latitude" => "[location][lat]"
+    "number" => "[address][number]"
+    "street_name" => "[address][street_name]"
+    "zipcode" => "[address][zipcode]"
+    "city" => "[address][city]"
+  }
+}
+
+# Step 2-1: Add elasticsearch output
+elasticsearch {
+  hosts => ["http://elasticsearch:9200"]
+  index => "banotest"
+  user => "elastic"
+  password => "changeme"
+  document_id => "%{[id]}"
+}
+
+# Step 2-2: Search
+GET _cat/indices/bano*?v&h=i,dc
+GET banotest/_search
+GET banotest/_search
+{
+  "query": {
+    "match": {
+      "address.street_name": "cormeilles"
+    }
+  }
+}
+GET banotest/_search
+{
+  "query": {
+    "bool": {
+      "filter": {
+        "geo_distance": {
+          "distance": "1km",
+          "location": {
+            "lat": 49.09,
+            "lon": 1.98
+          }
+        }
+      }
+    }
+  }
+}
+
+# Step 3-1: Create an index template
+PUT _template/bano
+{
+  "index_patterns": "bano*",
+  "settings": {
+    "index.number_of_shards": 1,
+    "index.number_of_replicas": 0,
+    "index.analysis": {
+      "analyzer": {
+        "bano_city_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "asciifolding"
+          ]
+        },
+        "bano_street_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "elision",
+            "lowercase",
+            "asciifolding",
+            "bano_synonym"
+          ]
+        }
+      },
+      "filter": {
+        "bano_synonym": {
+          "type": "synonym",
+          "synonyms": [
+            "bd => boulevard",
+            "av => avenue",
+            "r => rue",
+            "rte => route"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "address": {
+        "properties": {
+          "city": {
+            "type": "text",
+            "analyzer": "bano_city_analyzer",
+            "fields": {
+              "keyword": {
+                "type": "keyword"
+              }
+            }
+          },
+          "number": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword"
+              }
+            }
+          },
+          "street_name": {
+            "type": "text",
+            "analyzer": "bano_street_analyzer"
+          },
+          "zipcode": {
+            "type": "keyword"
+          }
+        }
+      },
+      "id": {
+        "type": "keyword"
+      },
+      "source": {
+        "type": "keyword"
+      },
+      "location": {
+        "type": "geo_point"
+      }
+    }
+  }
+}
+# Step 3-2: Remove the existing index
+DELETE banotest
+
+# Step 4-1: use the beats pipeline
+input { 
+  beats {
+    port => 5044
+  } 
+}
+filter {
+    csv {
+      separator => ","
+      columns => [
+        "id","number","street_name","zipcode","city","source","latitude","longitude"
+      ]
+      remove_field => [ "message", "host", "@timestamp", "@version", "input", "log", "ecs", "agent", "tags" ]
+    }
+    mutate {
+      convert => { "longitude" => "float" }
+      convert => { "latitude" => "float" }
+    }
+    mutate {
+      rename => {
+        "longitude" => "[location][lon]"
+        "latitude" => "[location][lat]"
+        "number" => "[address][number]"
+        "street_name" => "[address][street_name]"
+        "zipcode" => "[address][zipcode]"
+        "city" => "[address][city]"
+      }
+    }
+}
+output {
+    elasticsearch {
+      hosts => ["http://elasticsearch:9200"]
+      index => "bano"
+      user => "elastic"
+      password => "changeme"
+      document_id => "%{[id]}"
+    }
+}
+
+# Step 4-2: start filebeat and check how addresses are coming
+GET bano/_count
+GET bano/_search?size=0&track_total_hits=true
+
+# Step 5-1: search for addresses
+GET bano/_search
+{
+  "size": 1, 
+  "query": {
+    "multi_match": {
+      "query": "6 allée des myrtilles cergy",
+      "fields": [
+        "address.city",
+        "address.street_name",
+        "address.number"
+      ],
+      "type": "most_fields"
+    }
+  }
+}
+
+# Step 5-2: search by geo point
+GET bano/_search
+{
+  "size": 1, 
+  "sort": [
+    {
+      "_geo_distance": {
+        "location": {
+          "lat": 49.0409,
+          "lon": 2.0178
+        }
+      }
+    }
+  ]
+}
+
+# Step 5-3: search by points with some optimization
+GET bano/_search
+{
+  "size": 1, 
+  "query": {
+    "bool": {
+      "filter": {
+        "geo_distance": {
+          "distance": "1km",
+          "location": {
+            "lat": 49.0409,
+            "lon": 2.0178
+          }
+        }
+      }
+    }
+  },
+  "sort": [
+    {
+      "_geo_distance": {
+        "location": {
+          "lat": 49.0409,
+          "lon": 2.0178
+        }
+      }
+    }
+  ]
+}
+
+# Step 6-1: person dataset
+GET person/_count
+GET person/_search
+{
+  "query": {
+    "match": {
+      "address.city": "Cergy"
+    }
+  }
+}
+
+
+
+

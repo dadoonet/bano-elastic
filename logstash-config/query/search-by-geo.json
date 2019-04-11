@@ -1,0 +1,26 @@
+{
+  "size": 1, 
+  "query": {
+    "bool": {
+      "filter": {
+        "geo_distance": {
+          "distance": "1km",
+          "location": {
+            "lat": %{[address][location][lat]},
+            "lon": %{[address][location][lon]}
+          }
+        }
+      }
+    }
+  },
+  "sort": [
+    {
+      "_geo_distance": {
+        "location": {
+          "lat": %{[address][location][lat]},
+          "lon": %{[address][location][lon]}
+        }
+      }
+    }
+  ]
+}

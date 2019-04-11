@@ -1,0 +1,13 @@
+filebeat.inputs:
+- type: log
+  paths:
+    - /bano-data/bano-95.csv
+
+output.logstash:
+  hosts: ["logstash:5044"]
+
+xpack.monitoring.enabled: true
+xpack.monitoring.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+  username: elastic
+  password: changeme

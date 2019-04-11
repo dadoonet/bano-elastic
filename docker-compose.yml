@@ -1,0 +1,52 @@
+---
+version: '3'
+services:
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:$ELASTIC_VERSION
+    environment:
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - xpack.license.self_generated.type=trial
+      - xpack.monitoring.collection.enabled=true
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=$ELASTIC_PASSWORD
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 9200:9200
+    networks: ['stack']
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:$ELASTIC_VERSION
+    environment:
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=$ELASTIC_PASSWORD
+    links:
+      - elasticsearch
+    ports:
+      - 5601:5601
+    networks: ['stack']
+    depends_on:
+      - elasticsearch
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:$ELASTIC_VERSION
+    volumes:
+      - ./logstash-config/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./logstash-config/query/search-by-geo.json:/usr/share/logstash/config/search-by-geo.json
+    ports:
+      - 8080:8080
+      - 9600:9600
+    networks: ['stack']
+    depends_on:
+      - elasticsearch
+      - kibana
+
+networks:
+  stack: {}
+
