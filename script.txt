@@ -61,6 +61,7 @@ GET banotest/_search
     }
   }
 }
+GET banotest/_mapping
 
 # Step 3-1: Create an index template
 PUT _template/bano

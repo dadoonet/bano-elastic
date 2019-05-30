@@ -14,7 +14,6 @@ done
 echo -ne '\n'
 echo Kibana is now up.
 
-INJECTOR_VERSION="7.0"
 INJECTOR_FILE="injector-$INJECTOR_VERSION.jar"
 INJECTOR_DOWNLOAD_URL="https://download.elastic.co/workshops/basic-kibana/injector/$INJECTOR_FILE"
 

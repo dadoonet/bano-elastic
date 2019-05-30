@@ -1,3 +1,5 @@
+source .env
+
 # Remove existing filebeat container
 docker rm filebeat
 
@@ -8,4 +10,4 @@ docker run \
   --network=demo_stack \
   --volume="$(pwd)/bano-data:/bano-data:ro" \
   --volume="$(pwd)/filebeat-config/filebeat.yml:/usr/share/filebeat/filebeat.yml" \
-  docker.elastic.co/beats/filebeat:7.0.0 filebeat -e -strict.perms=false
+  docker.elastic.co/beats/filebeat:$ELASTIC_VERSION filebeat -e -strict.perms=false

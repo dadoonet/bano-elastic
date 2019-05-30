@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo "Importing BANO data with Logstash into elasticsearch"
+echo "Download all BANO data"
 
 export SOURCE_DIR=~/Documents/Elasticsearch/Talks/postal_addresses/demo/
 
