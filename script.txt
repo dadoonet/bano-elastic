@@ -193,7 +193,7 @@ GET bano/_count
 GET bano/_search?size=0&track_total_hits=true
 
 # Step 5-1: search for addresses
-GET bano/_search
+GET bano/_search?track_total_hits=true
 {
   "size": 1, 
   "query": {
@@ -210,7 +210,7 @@ GET bano/_search
 }
 
 # Step 5-2: search by geo point
-GET bano/_search
+GET bano/_search?track_total_hits=true
 {
   "size": 1, 
   "sort": [
@@ -226,7 +226,7 @@ GET bano/_search
 }
 
 # Step 5-3: search by points with some optimization
-GET bano/_search
+GET bano/_search?track_total_hits=true
 {
   "size": 1, 
   "query": {
@@ -256,7 +256,7 @@ GET bano/_search
 
 # Step 6-1: person dataset
 GET person/_count
-GET person/_search
+GET person/_search?track_total_hits=true
 {
   "query": {
     "match": {
