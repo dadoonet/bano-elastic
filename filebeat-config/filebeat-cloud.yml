@@ -1,0 +1,9 @@
+filebeat.inputs:
+- type: log
+  paths:
+    - /bano-data/bano-*.csv
+
+output.elasticsearch:
+  indices:
+    - index: "bano"
+  pipeline: bano

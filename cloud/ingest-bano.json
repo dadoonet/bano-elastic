@@ -1,0 +1,44 @@
+{
+  "processors": [
+    {
+      "csv": {
+        "field": "message",
+        "target_fields": [
+          "_id",
+          "address.number",
+          "address.street_name",
+          "address.zipcode",
+          "address.city",
+          "source",
+          "location.lat",
+          "location.lon"
+        ]
+      }
+    },
+    {
+      "convert": {
+        "field": "location.lat",
+        "type": "float"
+      }
+    },
+    {
+      "convert": {
+        "field": "location.lon",
+        "type": "float"
+      }
+    },
+    {
+      "remove": {
+        "field": [
+          "@timestamp",
+          "input",
+          "ecs",
+          "host",
+          "agent",
+          "log",
+          "message"
+        ]
+      }
+    }
+  ]
+}
