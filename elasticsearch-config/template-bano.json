@@ -27,7 +27,7 @@
             "type": "custom",
             "tokenizer": "standard"
           },
-          "bano_analyzer": {
+          "bano_city_analyzer": {
             "filter": [
               "lowercase",
               "asciifolding"
@@ -47,7 +47,7 @@
         "properties": {
           "city": {
             "type": "text",
-            "analyzer": "bano_analyzer",
+            "analyzer": "bano_city_analyzer",
             "fields": {
               "keyword": {
                 "type": "keyword"

@@ -1,21 +1,53 @@
+source .cloud
 source .env
-echo Installation script for BANO demo with Elastic $ELASTIC_VERSION
 
-echo Kibana must be available. If not, run:
-echo docker-compose down -v
-echo docker-compose up
-echo -ne "Waiting for kibana"
-
-until curl -s "http://localhost:5601/login" | grep "<title>Elastic</title>" > /dev/null; do
-	  sleep 1
-		echo -ne '.'
-done
-
-echo -ne '\n'
-echo Kibana is now up.
-
+# Script properties
 INJECTOR_FILE="injector-$INJECTOR_VERSION.jar"
 INJECTOR_DOWNLOAD_URL="https://download.elastic.co/workshops/basic-kibana/injector/$INJECTOR_FILE"
+
+# Utility functions
+check_service () {
+	echo -ne '\n'
+	echo $1 $ELASTIC_VERSION must be available on $2
+	echo -ne "Waiting for $1"
+
+	until curl -u elastic:$ELASTIC_PASSWORD -s "$2" | grep "$3" > /dev/null; do
+		  sleep 1
+			echo -ne '.'
+	done
+
+	echo -ne '\n'
+	echo $1 is now up.
+}
+
+# Start of the script
+echo Installation script for BANO demo with Elastic $ELASTIC_VERSION
+
+echo "##################"
+echo "### Pre-checks ###"
+echo "##################"
+
+if [ -z "$ELASTIC_PASSWORD" ]
+then
+      echo "\$ELASTIC_PASSWORD is empty. You must create a .cloud file which contains:"
+      echo "CLOUD_PASSWORD=YOUR_CLOUD_PASSWORD"
+      exit
+fi
+
+echo Pull filebeat $ELASTIC_VERSION docker image
+docker pull docker.elastic.co/beats/filebeat:$ELASTIC_VERSION
+
+echo Pull logstash $ELASTIC_VERSION docker image
+docker pull docker.elastic.co/logstash/logstash:$ELASTIC_VERSION
+
+check_service "Elasticsearch" "$ELASTICSEARCH_URL" "\"number\" : \"$ELASTIC_VERSION\""
+check_service "Kibana" "$KIBANA_URL/app/home#/" "<title>Elastic</title>"
+
+echo -ne '\n'
+echo "###############################"
+echo "### Install Person Injector ###"
+echo "###############################"
+echo -ne '\n'
 
 echo Download person injector
 if [ ! -e injector/$INJECTOR_FILE ] ; then
@@ -24,33 +56,46 @@ if [ ! -e injector/$INJECTOR_FILE ] ; then
   cd -
 fi
 
-echo Configuring default Logstash demo pipelines
-cd logstash-config/pipeline
-./load_pipeline.sh beats
-./load_pipeline.sh http
-./load_pipeline.sh bano
-cd -
+echo -ne '\n'
+echo "################################"
+echo "### Configure Cloud Services ###"
+echo "################################"
+echo -ne '\n'
 
-echo Removing existing bano template
-curl -XDELETE http://localhost:9200/_template/bano -u elastic:$ELASTIC_PASSWORD ; echo
+echo Remove existing bano template
+curl -XDELETE "$ELASTICSEARCH_URL/_template/bano" -u elastic:$ELASTIC_PASSWORD ; echo
 
-echo Removing existing bano data
-curl -XDELETE http://localhost:9200/bano -u elastic:$ELASTIC_PASSWORD ; echo
-curl -XDELETE http://localhost:9200/banotest -u elastic:$ELASTIC_PASSWORD ; echo
+echo Remove existing bano data
+curl -XDELETE "$ELASTICSEARCH_URL/banotest" -u elastic:$ELASTIC_PASSWORD ; echo
 
-echo Removing existing person data
-curl -XDELETE http://localhost:9200/person -u elastic:$ELASTIC_PASSWORD ; echo
+echo Remove existing person data
+curl -XDELETE "$ELASTICSEARCH_URL/person*" -u elastic:$ELASTIC_PASSWORD ; echo
 
-echo Installing Kibana Objects
-curl -XPOST "http://localhost:5601/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form file=@kibana-config/bano.ndjson -u elastic:$ELASTIC_PASSWORD ; echo
+echo Define ingest pipelines
+curl -XPUT "$ELASTICSEARCH_URL/_ingest/pipeline/bano" -u elastic:$ELASTIC_PASSWORD -H 'Content-Type: application/json' -d'@elasticsearch-config/ingest-bano-empty.json' ; echo
 
-echo Defining bano ingest pipeline
-curl -XPUT "http://localhost:9200/_ingest/pipeline/bano" -u elastic:$ELASTIC_PASSWORD -H 'Content-Type: application/json' -d'@cloud/ingest-bano.json' ; echo
+echo Install Kibana Objects
+curl -XPOST "$KIBANA_URL/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form 'file=@kibana-config/bano.ndjson' -u elastic:$ELASTIC_PASSWORD ; echo
+
+echo -ne '\n'
+echo "#############################"
+echo "### Inject Person Dataset ###"
+echo "#############################"
+echo -ne '\n'
 
 echo Injecting person dataset
 injector/injector.sh
 
-echo Pull filebeat docker image
-docker pull docker.elastic.co/beats/filebeat:$ELASTIC_VERSION
+echo -ne '\n'
+echo "#####################"
+echo "### Demo is ready ###"
+echo "#####################"
+echo -ne '\n'
+
+open "$KIBANA_URL/app/management/ingest/ingest_pipelines/"
+open "$KIBANA_URL/app/dev_tools#/console"
+
+echo "Run in a terminal:"
+echo "./filebeat.sh processors"
 
 

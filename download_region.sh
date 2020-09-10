@@ -2,7 +2,7 @@
 
 echo "Downloading BANO region $1"
 
-DATASOURCE_DIR=~/Documents/Elasticsearch/Talks/postal_addresses/demo/bano-data
+DATASOURCE_DIR=$(pwd)/bano-data
 
 import_region () {
     export REGION=$1

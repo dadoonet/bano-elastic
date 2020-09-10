@@ -1,4 +1,4 @@
 while read a; do
-  curl -s -XPOST "localhost:8080" -H "Content-Type: application/json" -d "{\"message\": \"$a\"}" -o /dev/null
+  curl -s -XPOST "127.0.0.1:8000" -H "Content-Type: application/json" -d "{\"message\": \"$a\"}" -o /dev/null
 done
 

@@ -1,4 +1,7 @@
+source .cloud
 source .env
+
+FILEBEAT_SELECTORS="$1"
 
 # Remove existing filebeat container
 docker rm filebeat
@@ -7,7 +10,7 @@ docker rm filebeat
 docker run \
   --name=filebeat \
   --user=root \
-  --network=demo_stack \
   --volume="$(pwd)/bano-data:/bano-data:ro" \
   --volume="$(pwd)/filebeat-config/filebeat.yml:/usr/share/filebeat/filebeat.yml" \
-  docker.elastic.co/beats/filebeat:$ELASTIC_VERSION filebeat -e -strict.perms=false
+  -p 8000:8000 \
+  docker.elastic.co/beats/filebeat:$ELASTIC_VERSION filebeat -e -strict.perms=false -d "$FILEBEAT_SELECTORS" -E cloud.id="$CLOUD_ID" -E cloud.auth="elastic:$ELASTIC_PASSWORD"

@@ -1,13 +1,20 @@
 filebeat.inputs:
+- type: http_endpoint
+  listen_address: 0.0.0.0
+  enabled: true
+  processors:
+    - rename:
+        fields:
+          - from: "json.message"
+            to: "message"
+    - drop_fields:
+        fields: ["json"]
 - type: log
+  enabled: false
   paths:
     - /bano-data/bano-*.csv
 
-output.logstash:
-  hosts: ["logstash:5044"]
-
-xpack.monitoring.enabled: true
-xpack.monitoring.elasticsearch:
-  hosts: ["elasticsearch:9200"]
-  username: elastic
-  password: changeme
+output.elasticsearch:
+  indices:
+    - index: "banotest"
+  pipeline: bano
