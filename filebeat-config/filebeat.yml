@@ -1,7 +1,7 @@
 filebeat.inputs:
 - type: log
   paths:
-    - /bano-data/bano-95.csv
+    - /bano-data/bano-*.csv
 
 output.logstash:
   hosts: ["logstash:5044"]

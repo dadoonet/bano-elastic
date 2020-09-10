@@ -6,7 +6,7 @@ echo docker-compose down -v
 echo docker-compose up
 echo -ne "Waiting for kibana"
 
-until curl -s "http://localhost:5601/login" | grep "Loading Kibana" > /dev/null; do
+until curl -s "http://localhost:5601/login" | grep "<title>Elastic</title>" > /dev/null; do
 	  sleep 1
 		echo -ne '.'
 done
@@ -40,6 +40,12 @@ curl -XDELETE http://localhost:9200/banotest -u elastic:$ELASTIC_PASSWORD ; echo
 
 echo Removing existing person data
 curl -XDELETE http://localhost:9200/person -u elastic:$ELASTIC_PASSWORD ; echo
+
+echo Installing Kibana Objects
+curl -XPOST "http://localhost:5601/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form file=@kibana-config/bano.ndjson -u elastic:$ELASTIC_PASSWORD ; echo
+
+echo Defining bano ingest pipeline
+curl -XPUT "http://localhost:9200/_ingest/pipeline/bano" -u elastic:$ELASTIC_PASSWORD -H 'Content-Type: application/json' -d'@cloud/ingest-bano.json' ; echo
 
 echo Injecting person dataset
 injector/injector.sh

@@ -66,10 +66,10 @@
           }
         }
       },
-      "region": {
+      "id": {
         "type": "keyword"
       },
-      "id": {
+      "dept": {
         "type": "keyword"
       },
       "source": {

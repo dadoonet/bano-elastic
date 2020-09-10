@@ -16,6 +16,21 @@
       }
     },
     {
+      "gsub": {
+        "field": "log.file.path",
+        "pattern": "\\/bano-data\\/bano-",
+        "replacement": "",
+        "target_field": "dept"
+      }
+    },
+    {
+      "gsub": {
+        "field": "dept",
+        "pattern": "\\.csv",
+        "replacement": ""
+      }
+    },
+    {
       "convert": {
         "field": "location.lat",
         "type": "float"
@@ -38,6 +53,12 @@
           "log",
           "message"
         ]
+      }
+    },
+    {
+      "set": {
+        "field": "_index",
+        "value": "bano-{{dept}}"
       }
     }
   ]

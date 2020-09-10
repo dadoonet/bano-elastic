@@ -137,6 +137,9 @@ PUT _template/bano
       "id": {
         "type": "keyword"
       },
+      "dept": {
+        "type": "keyword"
+      },
       "source": {
         "type": "keyword"
       },
@@ -161,14 +164,19 @@ filter {
       columns => [
         "id","number","street_name","zipcode","city","source","latitude","longitude"
       ]
-      remove_field => [ "message", "host", "@timestamp", "@version", "input", "log", "ecs", "agent", "tags" ]
+      remove_field => [ "message", "host", "@timestamp", "@version", "input", "ecs", "agent", "tags" ]
     }
     mutate {
+      gsub => [
+        "[log][file][path]", "\/bano-data\/bano-", "",
+        "[log][file][path]", "\.csv", ""
+      ]
       convert => { "longitude" => "float" }
       convert => { "latitude" => "float" }
     }
     mutate {
       rename => {
+        "[log][file][path]" => "dept"
         "longitude" => "[location][lon]"
         "latitude" => "[location][lat]"
         "number" => "[address][number]"
@@ -176,12 +184,13 @@ filter {
         "zipcode" => "[address][zipcode]"
         "city" => "[address][city]"
       }
+      remove_field => [ "log" ]
     }
 }
 output {
     elasticsearch {
       hosts => ["http://elasticsearch:9200"]
-      index => "bano"
+      index => "bano-%{[dept]}"
       user => "elastic"
       password => "changeme"
       document_id => "%{[id]}"
@@ -189,11 +198,11 @@ output {
 }
 
 # Step 4-2: start filebeat and check how addresses are coming
-GET bano/_count
-GET bano/_search?size=0&track_total_hits=true
+GET bano*/_count
+GET bano*/_search?size=0&track_total_hits=true
 
 # Step 5-1: search for addresses
-GET bano/_search?track_total_hits=true
+GET bano*/_search?track_total_hits=true
 {
   "size": 1, 
   "query": {
@@ -210,7 +219,7 @@ GET bano/_search?track_total_hits=true
 }
 
 # Step 5-2: search by geo point
-GET bano/_search?track_total_hits=true
+GET bano*/_search?track_total_hits=true
 {
   "size": 1, 
   "sort": [
@@ -226,7 +235,7 @@ GET bano/_search?track_total_hits=true
 }
 
 # Step 5-3: search by points with some optimization
-GET bano/_search?track_total_hits=true
+GET bano*/_search?track_total_hits=true
 {
   "size": 1, 
   "query": {

@@ -10,6 +10,8 @@ generate_data()
 {
   cat <<EOF
 {
+	"id": "$1",
+	"description": "Pipeline $1 for bano demo",
   "pipeline": "$message"
 }
 EOF
