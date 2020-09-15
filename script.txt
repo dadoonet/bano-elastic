@@ -159,7 +159,7 @@ GET banotest/_count
 GET bano-*/_count
 
 
-# Step 5-1: search for addresses
+# Step 5-1: search for addresses (TODO FIX THIS: it does not work anymore as 1 allée des myrtilles is returned)
 GET bano-*/_search?track_total_hits=true
 {
   "size": 1, 

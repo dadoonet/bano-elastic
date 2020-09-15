@@ -31,11 +31,27 @@ Or the opposite. I do have the coordinates but I can't tell what is the postal a
 }
 ```
 
-In this live coding session, I will show you how to solve all those questions using the Elastic stack with a lot of focus on Logstash and Elasticsearch.
+In this live coding session, I will show you how to solve all those questions using the Elastic stack.
 
 ## Setup
 
-### Local setup
+### Run on cloud
+
+This specific configuration is used to ingest the whole bano dataset on a cloud instance.
+You need to create a `.cloud` local file which contains:
+
+```
+CLOUD_ID=the_cloud_id_you_can_read_from_cloud_console
+CLOUD_PASSWORD=the_generated_elastic_password
+```
+
+Run:
+
+```sh
+./setup.sh
+```
+
+### Run Locally (TODO)
 
 Run Elastic Stack:
 
@@ -48,17 +64,6 @@ And run:
 
 ```sh
 ./setup.sh
-```
-
-### Cloud setup
-
-This specific configuration is used to ingest the whole bano dataset on a cloud instance.
-You need to create a `.cloud` local file which contains:
-
-```
-CLOUD_ID=the_cloud_id_you_can_read_from_cloud_console
-CLOUD_PASSWORD=the_generated_elastic_password
-CLOUD_URL=the_elasticsearch_url_you_can_copy_from_cloud_console
 ```
 
 

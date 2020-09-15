@@ -92,6 +92,15 @@ echo "### Demo is ready ###"
 echo "#####################"
 echo -ne '\n'
 
+
+echo "Open the conference page in the browser."
+
+open https://speaker.pilato.fr/
+open https://twitter.com/dadoonet
+open https://cloud.elastic.co/
+open https://www.elastic.co/elastic-stack
+open https://github.com/dadoonet/bano-elastic
+open https://bano.openstreetmap.fr/data/
 open "$KIBANA_URL/app/management/ingest/ingest_pipelines/"
 open "$KIBANA_URL/app/dev_tools#/console"
 
