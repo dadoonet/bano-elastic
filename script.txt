@@ -69,42 +69,46 @@ GET banotest/_mapping
 # Step 3-1: Create an index template
 PUT _template/bano
 {
-  "index_patterns": "bano*",
+  "order": 0,
+  "index_patterns": [
+    "bano*"
+  ],
   "settings": {
-    "index.number_of_shards": 1,
-    "index.number_of_replicas": 0,
-    "index.analysis": {
-      "analyzer": {
-        "bano_city_analyzer": {
-          "type": "custom",
-          "tokenizer": "standard",
-          "filter": [
-            "lowercase",
-            "asciifolding"
-          ]
+    "index": {
+      "analysis": {
+        "filter": {
+          "bano_synonym": {
+            "type": "synonym",
+            "synonyms": [
+              "bd => boulevard",
+              "av => avenue",
+              "r => rue",
+              "rte => route"
+            ]
+          }
         },
-        "bano_street_analyzer": {
-          "type": "custom",
-          "tokenizer": "standard",
-          "filter": [
-            "elision",
-            "lowercase",
-            "asciifolding",
-            "bano_synonym"
-          ]
+        "analyzer": {
+          "bano_street_analyzer": {
+            "filter": [
+              "lowercase",
+              "asciifolding",
+              "bano_synonym"
+            ],
+            "type": "custom",
+            "tokenizer": "standard"
+          },
+          "bano_city_analyzer": {
+            "filter": [
+              "lowercase",
+              "asciifolding"
+            ],
+            "type": "custom",
+            "tokenizer": "standard"
+          }
         }
       },
-      "filter": {
-        "bano_synonym": {
-          "type": "synonym",
-          "synonyms": [
-            "bd => boulevard",
-            "av => avenue",
-            "r => rue",
-            "rte => route"
-          ]
-        }
-      }
+      "number_of_shards": "1",
+      "number_of_replicas": "0"
     }
   },
   "mappings": {
@@ -121,14 +125,16 @@ PUT _template/bano
             }
           },
           "number": {
-            "type": "keyword"
+            "type": "keyword",
+            "split_queries_on_whitespace": true
           },
           "street_name": {
             "type": "text",
             "analyzer": "bano_street_analyzer"
           },
           "zipcode": {
-            "type": "keyword"
+            "type": "keyword",
+            "split_queries_on_whitespace": true
           }
         }
       },
@@ -147,6 +153,7 @@ PUT _template/bano
     }
   }
 }
+
 # Step 3-2: Remove the existing index
 DELETE banotest
 

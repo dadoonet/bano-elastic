@@ -55,14 +55,16 @@
             }
           },
           "number": {
-            "type": "keyword"
+            "type": "keyword",
+            "split_queries_on_whitespace": true
           },
           "street_name": {
             "type": "text",
             "analyzer": "bano_street_analyzer"
           },
           "zipcode": {
-            "type": "keyword"
+            "type": "keyword",
+            "split_queries_on_whitespace": true
           }
         }
       },
