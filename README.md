@@ -35,9 +35,9 @@ In this live coding session, I will show you how to solve all those questions us
 
 ## Setup
 
-### Run on cloud
+### Run on cloud (recommended)
 
-This specific configuration is used to ingest the whole bano dataset on a cloud instance.
+This specific configuration is used to ingest the whole bano dataset on a [cloud instance](https://cloud.elastic.co).
 You need to create a `.cloud` local file which contains:
 
 ```
@@ -51,7 +51,7 @@ Run:
 ./setup.sh
 ```
 
-### Run Locally (TODO)
+### Run Locally
 
 Run Elastic Stack:
 
@@ -66,5 +66,21 @@ And run:
 ./setup.sh
 ```
 
+## Inject the whole dataset
 
+Run:
+
+```sh
+./inject-all.sh
+```
+
+Open Kibana.
+
+Go to the dev tools application and check that data is coming with:
+
+```
+GET bano-*/_count
+```
+
+Go to the map application and check that data is coming.
 

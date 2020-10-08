@@ -50,8 +50,10 @@
           "ecs",
           "host",
           "agent",
-          "message"
-        ]
+          "message",
+          "log"
+        ],
+        "ignore_missing": true
       }
     },
     {

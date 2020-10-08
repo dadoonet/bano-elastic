@@ -1,6 +1,5 @@
 #!/bin/sh
-source .cloud
-source .env
+source .env.sh
 
 java -jar injector/injector-7.0.jar \
 	--es.host $ELASTICSEARCH_URL \

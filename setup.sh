@@ -1,5 +1,4 @@
-source .cloud
-source .env
+source .env.sh
 
 # Script properties
 INJECTOR_FILE="injector-$INJECTOR_VERSION.jar"
@@ -27,18 +26,16 @@ echo "##################"
 echo "### Pre-checks ###"
 echo "##################"
 
-if [ -z "$ELASTIC_PASSWORD" ]
-then
-      echo "\$ELASTIC_PASSWORD is empty. You must create a .cloud file which contains:"
-      echo "CLOUD_PASSWORD=YOUR_CLOUD_PASSWORD"
-      exit
-fi
-
 echo Pull filebeat $ELASTIC_VERSION docker image
 docker pull docker.elastic.co/beats/filebeat:$ELASTIC_VERSION
 
 echo Pull logstash $ELASTIC_VERSION docker image
 docker pull docker.elastic.co/logstash/logstash:$ELASTIC_VERSION
+
+if [ -z "$CLOUD_ID" ] ; then
+	echo "We are running a local demo. If you did not start Elastic yet, please run:"
+	echo "docker-compose up"
+fi
 
 check_service "Elasticsearch" "$ELASTICSEARCH_URL" "\"number\" : \"$ELASTIC_VERSION\""
 check_service "Kibana" "$KIBANA_URL/app/home#/" "<title>Elastic</title>"

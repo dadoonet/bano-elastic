@@ -1,5 +1,4 @@
-source .cloud
-source .env
+source .env.sh
 
 # Start the container
 docker run \
