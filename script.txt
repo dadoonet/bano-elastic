@@ -4,35 +4,19 @@
 # Step 1-0: Search for index documents
 GET banotest/_search?track_total_hits=true
 
-# Step 1-1: Add CSV
-"field": "message",
-"target_fields": [
-  "_id",
-  "address.number",
-  "address.street_name",
-  "address.zipcode",
-  "address.city",
-  "source",
-  "location.lat",
-  "location.lon"
-]
+# Step 1-1: Add CSV 
+# "field": "message",
+# "target_fields": [ "_id", "address.number", "address.street_name", "address.zipcode", "address.city", "source", "location.lat", "location.lon" ]
 
 # Step 1-2: Add Remove Processor
-"field": [
-  "@timestamp",
-  "input",
-  "ecs",
-  "host",
-  "agent",
-  "message"
-]
+# "field": [ "@timestamp", "input", "ecs", "host", "agent", "message" ]
 
 # Step 1-3: Add Convert lat/lon to float
-"field": "location.lat",
-"type": "float"
+# "field": "location.lat",
+# "type": "float"
 
-"field": "location.lon",
-"type": "float"
+# "field": "location.lon",
+# "type": "float"
 
 # Step 1-4: Remove banotest index and launch with more data
 DELETE banotest
@@ -66,107 +50,39 @@ GET banotest/_search?track_total_hits=true
 }
 GET banotest/_mapping
 
-# Step 3-1: Create an index template
-PUT _template/bano
+# Step 3-1: Create an index template (using Index Management)
+# Step 3-2: Remove the existing banotest index (using Index Management)
+# Step 3-3: Reindex and search again
+GET banotest/_search?track_total_hits=true
 {
-  "order": 0,
-  "index_patterns": [
-    "bano*"
-  ],
-  "settings": {
-    "index": {
-      "analysis": {
-        "filter": {
-          "bano_synonym": {
-            "type": "synonym",
-            "synonyms": [
-              "bd => boulevard",
-              "av => avenue",
-              "r => rue",
-              "rte => route"
-            ]
-          }
-        },
-        "analyzer": {
-          "bano_street_analyzer": {
-            "filter": [
-              "lowercase",
-              "asciifolding",
-              "bano_synonym"
-            ],
-            "type": "custom",
-            "tokenizer": "standard"
-          },
-          "bano_city_analyzer": {
-            "filter": [
-              "lowercase",
-              "asciifolding"
-            ],
-            "type": "custom",
-            "tokenizer": "standard"
+  "query": {
+    "bool": {
+      "filter": {
+        "geo_distance": {
+          "distance": "1km",
+          "location": {
+            "lat": 49.09,
+            "lon": 1.98
           }
         }
-      },
-      "number_of_shards": "1",
-      "number_of_replicas": "0"
-    }
-  },
-  "mappings": {
-    "properties": {
-      "address": {
-        "properties": {
-          "city": {
-            "type": "text",
-            "analyzer": "bano_city_analyzer",
-            "fields": {
-              "keyword": {
-                "type": "keyword"
-              }
-            }
-          },
-          "number": {
-            "type": "keyword",
-            "split_queries_on_whitespace": true
-          },
-          "street_name": {
-            "type": "text",
-            "analyzer": "bano_street_analyzer"
-          },
-          "zipcode": {
-            "type": "keyword",
-            "split_queries_on_whitespace": true
-          }
-        }
-      },
-      "id": {
-        "type": "keyword"
-      },
-      "dept": {
-        "type": "keyword"
-      },
-      "source": {
-        "type": "keyword"
-      },
-      "location": {
-        "type": "geo_point"
       }
     }
   }
 }
 
-# Step 3-2: Remove the existing index
+
+# Step 4-1: Remove the existing banotest index
 DELETE banotest
+# Step 4-2: Use the log input pipeline (enable it in filebeat.yml)
 
-# Step 4-1: use the log input pipeline (enable it in filebeat.yml)
-
-# Step 4-2: start filebeat and check how addresses are coming
+# Step 4-3: Start filebeat and check how addresses are coming
 GET banotest/_count
 
-# Step 4-3: show that we already have injected a dataset
+# Step 4-4: show that we already have injected a dataset
 GET bano-*/_count
 
 
-# Step 5-1: search for addresses (TODO FIX THIS: it does not work anymore as 1 allée des myrtilles is returned)
+# Step 5-1: search for addresses
 GET bano-*/_search?track_total_hits=true
 {
   "size": 1, 
@@ -276,5 +192,4 @@ GET person/_search?track_total_hits=true
 # Step 6-3: check for new dataset
 GET person-new/_count
 GET person-new/_search?track_total_hits=true
-
 

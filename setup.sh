@@ -60,7 +60,7 @@ echo "################################"
 echo -ne '\n'
 
 echo Remove existing bano template
-curl -XDELETE "$ELASTICSEARCH_URL/_template/bano" -u elastic:$ELASTIC_PASSWORD ; echo
+curl -XDELETE "$ELASTICSEARCH_URL/_index_template/bano" -u elastic:$ELASTIC_PASSWORD ; echo
 
 echo Remove existing bano data
 curl -XDELETE "$ELASTICSEARCH_URL/banotest" -u elastic:$ELASTIC_PASSWORD ; echo
@@ -70,6 +70,10 @@ curl -XDELETE "$ELASTICSEARCH_URL/person*" -u elastic:$ELASTIC_PASSWORD ; echo
 
 echo Define ingest pipelines
 curl -XPUT "$ELASTICSEARCH_URL/_ingest/pipeline/bano" -u elastic:$ELASTIC_PASSWORD -H 'Content-Type: application/json' -d'@elasticsearch-config/ingest-bano-empty.json' ; echo
+
+echo Define bano component templates
+curl -XPUT "$ELASTICSEARCH_URL/_component_template/bano-settings" -u elastic:$ELASTIC_PASSWORD -H 'Content-Type: application/json' -d'@elasticsearch-config/component-bano-settings.json' ; echo
+curl -XPUT "$ELASTICSEARCH_URL/_component_template/bano-mapping" -u elastic:$ELASTIC_PASSWORD -H 'Content-Type: application/json' -d'@elasticsearch-config/component-bano-mapping.json' ; echo
 
 echo Install Kibana Objects
 curl -XPOST "$KIBANA_URL/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form 'file=@kibana-config/bano.ndjson' -u elastic:$ELASTIC_PASSWORD ; echo

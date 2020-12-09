@@ -1,0 +1,82 @@
+{
+  "template": {
+	  "settings": {
+	    "index": {
+	      "analysis": {
+	        "filter": {
+	          "bano_synonym": {
+	            "type": "synonym",
+	            "synonyms": [
+	              "bd => boulevard",
+	              "av => avenue",
+	              "r => rue",
+	              "rte => route"
+	            ]
+	          }
+	        },
+	        "analyzer": {
+	          "bano_street_analyzer": {
+	            "filter": [
+	              "lowercase",
+	              "elision",
+	              "asciifolding",
+	              "bano_synonym"
+	            ],
+	            "type": "custom",
+	            "tokenizer": "standard"
+	          },
+	          "bano_city_analyzer": {
+	            "filter": [
+	              "lowercase",
+	              "asciifolding"
+	            ],
+	            "type": "custom",
+	            "tokenizer": "standard"
+	          }
+	        }
+	      }
+	    }
+	  },
+	  "mappings": {
+	    "properties": {
+	      "address": {
+	        "properties": {
+	          "city": {
+	            "type": "text",
+	            "analyzer": "bano_city_analyzer",
+	            "fields": {
+	              "keyword": {
+	                "type": "keyword"
+	              }
+	            }
+	          },
+	          "number": {
+	            "type": "keyword",
+	            "split_queries_on_whitespace": true
+	          },
+	          "street_name": {
+	            "type": "text",
+	            "analyzer": "bano_street_analyzer"
+	          },
+	          "zipcode": {
+	            "type": "keyword",
+	            "split_queries_on_whitespace": true
+	          }
+	        }
+	      },
+	      "id": {
+	        "type": "keyword"
+	      },
+	      "dept": {
+	        "type": "keyword"
+	      },
+	      "source": {
+	        "type": "keyword"
+	      },
+	      "location": {
+	        "type": "geo_point"
+	      }
+	    }
+	  }
+  }
+}
