@@ -55,6 +55,15 @@ fi
 
 echo -ne '\n'
 echo "################################"
+echo "###      Reset Filebeat      ###"
+echo "################################"
+echo -ne '\n'
+
+echo Replace filebeat configuration with the default one
+cp filebeat-config/filebeat-origin.yml filebeat-config/filebeat.yml
+
+echo -ne '\n'
+echo "################################"
 echo "### Configure Cloud Services ###"
 echo "################################"
 echo -ne '\n'
@@ -98,9 +107,9 @@ echo "Open the conference page in the browser."
 
 open https://speaker.pilato.fr/
 open https://twitter.com/dadoonet
-open https://cloud.elastic.co/
 open https://www.elastic.co/elastic-stack
 open https://github.com/dadoonet/bano-elastic
+open https://cloud.elastic.co/
 open https://bano.openstreetmap.fr/data/
 open "$KIBANA_URL/app/management/ingest/ingest_pipelines/"
 open "$KIBANA_URL/app/dev_tools#/console"
