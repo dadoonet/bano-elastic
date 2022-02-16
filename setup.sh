@@ -7,10 +7,10 @@ INJECTOR_DOWNLOAD_URL="https://repo1.maven.org/maven2/fr/pilato/elasticsearch/in
 # Utility functions
 check_service () {
 	echo -ne '\n'
-	echo $1 $ELASTIC_VERSION must be available on $2
+	echo $1 $STACK_VERSION must be available on $2
 	echo -ne "Waiting for $1"
 
-	until curl -u elastic:$ELASTIC_PASSWORD -s "$2" | grep "$3" > /dev/null; do
+	until curl $CURL_OPTION -u elastic:$ELASTIC_PASSWORD -s "$2" | grep "$3" > /dev/null; do
 		  sleep 1
 			echo -ne '.'
 	done
@@ -20,24 +20,24 @@ check_service () {
 }
 
 # Start of the script
-echo Installation script for BANO demo with Elastic $ELASTIC_VERSION
+echo Installation script for BANO demo with Elastic $STACK_VERSION
 
 echo "##################"
 echo "### Pre-checks ###"
 echo "##################"
 
-echo Pull filebeat $ELASTIC_VERSION docker image
-docker pull docker.elastic.co/beats/filebeat:$ELASTIC_VERSION
+echo Pull filebeat $STACK_VERSION docker image
+docker pull docker.elastic.co/beats/filebeat:$STACK_VERSION
 
-echo Pull logstash $ELASTIC_VERSION docker image
-docker pull docker.elastic.co/logstash/logstash:$ELASTIC_VERSION
+echo Pull logstash $STACK_VERSION docker image
+docker pull docker.elastic.co/logstash/logstash:$STACK_VERSION
 
 if [ -z "$CLOUD_ID" ] ; then
 	echo "We are running a local demo. If you did not start Elastic yet, please run:"
 	echo "docker-compose up"
 fi
 
-check_service "Elasticsearch" "$ELASTICSEARCH_URL" "\"number\" : \"$ELASTIC_VERSION\""
+check_service "Elasticsearch" "$ELASTICSEARCH_URL" "\"number\" : \"$STACK_VERSION\""
 check_service "Kibana" "$KIBANA_URL/app/home#/" "<title>Elastic</title>"
 
 echo -ne '\n'
@@ -69,23 +69,23 @@ echo "################################"
 echo -ne '\n'
 
 echo Remove existing bano template
-curl -XDELETE "$ELASTICSEARCH_URL/_index_template/bano" -u elastic:$ELASTIC_PASSWORD ; echo
+curl $CURL_OPTION -XDELETE "$ELASTICSEARCH_URL/_index_template/bano" -u elastic:$ELASTIC_PASSWORD ; echo
 
 echo Remove existing bano data
-curl -XDELETE "$ELASTICSEARCH_URL/banotest" -u elastic:$ELASTIC_PASSWORD ; echo
+curl $CURL_OPTION -XDELETE "$ELASTICSEARCH_URL/banotest" -u elastic:$ELASTIC_PASSWORD ; echo
 
 echo Remove existing person data
-curl -XDELETE "$ELASTICSEARCH_URL/person*" -u elastic:$ELASTIC_PASSWORD ; echo
+curl $CURL_OPTION -XDELETE "$ELASTICSEARCH_URL/person*" -u elastic:$ELASTIC_PASSWORD ; echo
 
 echo Define ingest pipelines
-curl -XPUT "$ELASTICSEARCH_URL/_ingest/pipeline/bano" -u elastic:$ELASTIC_PASSWORD -H 'Content-Type: application/json' -d'@elasticsearch-config/ingest-bano-empty.json' ; echo
+curl $CURL_OPTION -XPUT "$ELASTICSEARCH_URL/_ingest/pipeline/bano" -u elastic:$ELASTIC_PASSWORD -H 'Content-Type: application/json' -d'@elasticsearch-config/ingest-bano-empty.json' ; echo
 
 echo Define bano component templates
-curl -XPUT "$ELASTICSEARCH_URL/_component_template/bano-settings" -u elastic:$ELASTIC_PASSWORD -H 'Content-Type: application/json' -d'@elasticsearch-config/component-bano-settings.json' ; echo
-curl -XPUT "$ELASTICSEARCH_URL/_component_template/bano-mapping" -u elastic:$ELASTIC_PASSWORD -H 'Content-Type: application/json' -d'@elasticsearch-config/component-bano-mapping.json' ; echo
+curl $CURL_OPTION -XPUT "$ELASTICSEARCH_URL/_component_template/bano-settings" -u elastic:$ELASTIC_PASSWORD -H 'Content-Type: application/json' -d'@elasticsearch-config/component-bano-settings.json' ; echo
+curl $CURL_OPTION -XPUT "$ELASTICSEARCH_URL/_component_template/bano-mapping" -u elastic:$ELASTIC_PASSWORD -H 'Content-Type: application/json' -d'@elasticsearch-config/component-bano-mapping.json' ; echo
 
 echo Install Kibana Objects
-curl -XPOST "$KIBANA_URL/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form 'file=@kibana-config/bano.ndjson' -u elastic:$ELASTIC_PASSWORD ; echo
+curl $CURL_OPTION -XPOST "$KIBANA_URL/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form 'file=@kibana-config/bano.ndjson' -u elastic:$ELASTIC_PASSWORD ; echo
 
 echo -ne '\n'
 echo "#############################"
