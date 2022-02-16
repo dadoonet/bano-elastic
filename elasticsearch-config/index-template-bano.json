@@ -1,0 +1,9 @@
+{
+  "index_patterns": [
+    "bano*"
+  ],
+  "composed_of": [
+    "bano-mapping",
+    "bano-settings"
+  ]
+}

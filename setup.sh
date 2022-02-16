@@ -2,7 +2,7 @@ source .env.sh
 
 # Script properties
 INJECTOR_FILE="injector-$INJECTOR_VERSION.jar"
-INJECTOR_DOWNLOAD_URL="https://download.elastic.co/workshops/basic-kibana/injector/$INJECTOR_FILE"
+INJECTOR_DOWNLOAD_URL="https://repo1.maven.org/maven2/fr/pilato/elasticsearch/injector/$INJECTOR_VERSION/$INJECTOR_FILE"
 
 # Utility functions
 check_service () {
