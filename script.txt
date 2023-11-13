@@ -20,7 +20,7 @@ GET banotest/_search?track_total_hits=true
 
 # Step 1-4: Remove banotest index and launch with more data
 DELETE banotest
-GET banotest/_search?track_total_hits=true
+GET _cat/indices/banotest?v&h=index,docs.count
 
 # Step 2-2: Search
 GET banotest/_search?track_total_hits=true

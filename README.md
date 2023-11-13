@@ -40,7 +40,7 @@ In this live coding session, I will show you how to solve all those questions us
 This specific configuration is used to ingest the whole bano dataset on a [cloud instance](https://cloud.elastic.co).
 You need to create a `.cloud` local file which contains:
 
-```
+```properties
 CLOUD_ID=the_cloud_id_you_can_read_from_cloud_console
 CLOUD_PASSWORD=the_generated_elastic_password
 ```
@@ -78,9 +78,30 @@ Open Kibana.
 
 Go to the dev tools application and check that data is coming with:
 
-```
+```json
 GET bano-*/_count
 ```
 
 Go to the map application and check that data is coming.
 
+## Side notes
+
+The csv fields we want to extract are:
+
+* _id
+* address.number
+* address.street_name
+* address.zipcode
+* address.city
+* source
+* location.lat
+* location.lon
+
+The fields we can remove are:
+
+* @timestamp
+* input
+* ecs
+* host
+* agent
+* message
