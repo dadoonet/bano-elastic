@@ -1,28 +1,32 @@
 # Start filebeat with debug on processors
 # ./filebeat.sh processors
 
-# Step 1-0: Search for index documents
+### Step 1
+# Step 1-1: Search for index documents
 GET banotest/_search?track_total_hits=true
 
-# Step 1-1: Add CSV 
+# Step 1-2: Add CSV 
 # "field": "message",
 # "target_fields": [ "_id", "address.number", "address.street_name", "address.zipcode", "address.city", "source", "location.lat", "location.lon" ]
 
-# Step 1-2: Add Remove Processor
+# Step 1-3: Add Remove Processor
 # "field": [ "@timestamp", "input", "ecs", "host", "agent", "message" ]
 
-# Step 1-3: Add Convert lat/lon to float
+# Step 1-4: Add Convert lat/lon to float
 # "field": "location.lat",
 # "type": "float"
 
 # "field": "location.lon",
 # "type": "float"
 
-# Step 1-4: Remove banotest index and launch with more data
+# Step 1-5: Remove banotest index and launch with more data
 DELETE banotest
-GET _cat/indices/banotest?v&h=index,docs.count
+# head bano-data/bano-95.csv | ./curl_json.sh
+GET banotest/_search?track_total_hits=true
 
-# Step 2-2: Search
+
+### Step 2
+# Step 2-1: Search
 GET banotest/_search?track_total_hits=true
 GET banotest/_search?track_total_hits=true
 {
@@ -48,8 +52,11 @@ GET banotest/_search?track_total_hits=true
     }
   }
 }
+# Step 2-2: What is the mapping?
 GET banotest/_mapping
 
+
+### Step 3
 # Step 3-1: Create an index template (using Index Management)
 # Step 3-2: Remove the existing banotest index (using Index Management)
 # Step 3-3: Reindex and search again
@@ -71,17 +78,22 @@ GET banotest/_search?track_total_hits=true
 }
 
 
+### Step 4
 # Step 4-1: Remove the existing banotest index
 DELETE banotest
 # Step 4-2: Use the log input pipeline (enable it in filebeat.yml)
 
 # Step 4-3: Start filebeat and check how addresses are coming
+# ./filebeat.sh
 GET banotest/_count
 
 # Step 4-4: show that we already have injected a dataset
 GET bano-*/_count
 
+# Step 4-5: open or create a Kibana Dashboard
 
+
+### Step 5
 # Step 5-1: search for addresses
 GET bano-*/_search?track_total_hits=true
 {
@@ -184,12 +196,15 @@ GET person/_search?track_total_hits=true
   }
 }
 
-# Step 6-2: show the logstash pipeline and the query and run it
-# cat logstash-config/pipeline/bano.conf
-# cat logstash-config/query/search-by-geo.json 
+# Step 6-2: run logstash as it takes time
 # ./logstash.sh
 
-# Step 6-3: check for new dataset
+# Step 6-3: show the logstash pipeline and the query
+# cat logstash-config/pipeline/bano.conf
+# cat logstash-config/query/search-by-geo.json 
+
+# Step 6-4: check for new dataset
 GET person-new/_count
 GET person-new/_search?track_total_hits=true
 
+# Step 6-5: create a map with person data compared to person-new data

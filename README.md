@@ -105,3 +105,11 @@ The fields we can remove are:
 * host
 * agent
 * message
+
+## Logstash pipeline
+
+The pipeline reads data from Elasticsearch (`person` index) and enriches it with the BANO dataset from Elasticsearch (`bano-*` indices) and write the corrected data to Elasticsearch (`person-new` index).
+
+The following dashboard shows the corrected dataset.
+
+![Dashboard](dashboard.png)
