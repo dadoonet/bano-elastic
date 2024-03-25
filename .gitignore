@@ -2,3 +2,4 @@ bano-data/
 injector/injector-*.jar
 .cloud
 filebeat-config/filebeat.yml
+.DS_Store
