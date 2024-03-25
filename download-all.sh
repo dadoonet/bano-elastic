@@ -1,9 +1,9 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 
 DATASOURCE_DIR=$(pwd)/bano-data
 
 echo "Remove all BANO data"
 
-rm -r $DATASOURCE_DIR/*.csv
+rm -r "$DATASOURCE_DIR"/*.csv
 
 ./download.sh
