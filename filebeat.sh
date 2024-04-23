@@ -12,8 +12,8 @@ if [ -z "$CLOUD_ID" ] ; then
 	docker run \
 	  --name=filebeat \
 	  --user=root \
-	  --volume="$(pwd)/bano-data:/bano-data:ro" \
-	  --volume="$(pwd)/filebeat-config/filebeat$FILEBEAT_CONFIG_SUFFIX.yml:/usr/share/filebeat/filebeat.yml" \
+	  --volume="./bano-data:/bano-data:ro" \
+	  --volume="./filebeat-config/filebeat$FILEBEAT_CONFIG_SUFFIX.yml:/usr/share/filebeat/filebeat.yml" \
 	  --volume="/var/lib/docker/containers:/var/lib/docker/containers:ro" \
 	  --volume="/var/run/docker.sock:/var/run/docker.sock:ro" \
 	  --network=bano_default \
@@ -24,8 +24,8 @@ else
 	docker run \
 	  --name=filebeat \
 	  --user=root \
-	  --volume="$(pwd)/bano-data:/bano-data:ro" \
-	  --volume="$(pwd)/filebeat-config/filebeat$FILEBEAT_CONFIG_SUFFIX.yml:/usr/share/filebeat/filebeat.yml" \
+	  --volume="./bano-data:/bano-data:ro" \
+	  --volume="./filebeat-config/filebeat$FILEBEAT_CONFIG_SUFFIX.yml:/usr/share/filebeat/filebeat.yml" \
 	  --volume="/var/lib/docker/containers:/var/lib/docker/containers:ro" \
 	  --volume="/var/run/docker.sock:/var/run/docker.sock:ro" \
 	  -p 8000:8000 \

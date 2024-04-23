@@ -2,7 +2,7 @@
 
 echo "Downloading BANO region $1"
 
-DATASOURCE_DIR=$(pwd)/bano-data
+DATASOURCE_DIR=./bano-data
 
 import_region () {
     export REGION=$1

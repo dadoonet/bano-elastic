@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-DATASOURCE_DIR=$(pwd)/bano-data
+DATASOURCE_DIR=./bano-data
 
 echo "Remove all BANO data"
 
